@@ -41,8 +41,9 @@ watch(selectedTemplate, (v) => {
 
 <template>
   <div class="screen screen--template" role="region" aria-label="選版型畫面">
+    <!-- 標題在捲動區外，橫向捲動版型列時不會跟著位移，永遠對齊畫面水平中央 -->
+    <h1 class="screen-template__title">選擇相框版型</h1>
     <div class="screen-template__scroll">
-      <h1 class="screen-template__title">選擇相框版型</h1>
       <!-- <button
         v-show="hasSelection"
         type="button"
@@ -51,28 +52,30 @@ watch(selectedTemplate, (v) => {
       >
         開始拍照
       </button> -->
-      <div
-        ref="templateListRef"
-        class="screen-template__grid"
-        :class="{ 'has-selection': hasSelection }"
-      >
-        <button
-          v-for="t in templates"
-          :key="t.id"
-          type="button"
-          class="screen-template__card"
-          :class="{ 'is-selected': selectedTemplate?.id === t.id }"
-          @click="onCardClick(t)"
+      <div class="screen-template__row-wrap">
+        <div
+          ref="templateListRef"
+          class="screen-template__grid"
+          :class="{ 'has-selection': hasSelection }"
         >
-          <div class="screen-template__card-preview">
-            <img
-              class="screen-template__card-img"
-              :src="t.preview"
-              :alt="t.id"
-              loading="lazy"
-            />
-          </div>
-        </button>
+          <button
+            v-for="t in templates"
+            :key="t.id"
+            type="button"
+            class="screen-template__card"
+            :class="{ 'is-selected': selectedTemplate?.id === t.id }"
+            @click="onCardClick(t)"
+          >
+            <div class="screen-template__card-preview">
+              <img
+                class="screen-template__card-img"
+                :src="t.preview"
+                :alt="t.id"
+                loading="lazy"
+              />
+            </div>
+          </button>
+        </div>
       </div>
     </div>
     <div
@@ -129,31 +132,51 @@ watch(selectedTemplate, (v) => {
 
 .screen-template__scroll {
   flex: 1;
+  /* 版型列須在文件流內，否則 absolute 不會撐開 scrollWidth，橫向無法捲到最左／最右，邊緣會被切掉 */
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 80px 0 10px;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: max(24px, env(safe-area-inset-left, 0px));
+  /* 上：保留標題列空間（標題為 absolute）；其餘區塊垂直置中，讓版型列落在畫面中段 */
+  padding: calc(140px + env(safe-area-inset-top, 0px)) max(32px, env(safe-area-inset-left, 0px))
+    max(48px, env(safe-area-inset-bottom, 0px)) max(32px, env(safe-area-inset-right, 0px));
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
+  justify-content: center;
   width: 100%;
+  min-width: 0;
+  min-height: 0;
   position: relative;
   z-index: 1;
 }
 
+/* 橫向捲動時整排仍可置中（較窄視窗）；內容較寬時由外層 overflow-x 捲動 */
+.screen-template__row-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: min-content;
+}
+
 .screen-template__title {
   position: absolute;
-  top: 24px;
+  top: calc(24px + env(safe-area-inset-top, 0px));
   left: 0;
   right: 0;
+  width: 100%;
   margin: 0;
+  padding: 0 max(16px, env(safe-area-inset-left, 0px)) 0 max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
   font-size: 96px;
   font-weight: bold;
-  color: $color-111;
+  color: rgb(255, 255, 255);
   text-align: center;
   line-height: 1.2;
   letter-spacing: 10px;
   z-index: 2;
+  /* 不攔截點擊，下方橫向捲動區可正常操作 */
+  pointer-events: none;
 }
 
 .screen-template__start-btn {
@@ -178,17 +201,16 @@ watch(selectedTemplate, (v) => {
 }
 
 .screen-template__grid {
-  position: absolute;
-  top: 197px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
+  flex-wrap: nowrap;
   gap: 28px;
   align-items: center;
   justify-content: center;
-  padding: 0 24px;
   width: max-content;
   max-width: none;
+  min-width: min-content;
+  margin-inline: auto;
+  padding-block: 16px; /* 選中 scale 時上下不裁切 */
 
   &.has-selection :deep(.screen-template__card:not(.is-selected)) {
     transform: scale(0.9);
@@ -213,7 +235,7 @@ watch(selectedTemplate, (v) => {
 }
 
 .screen-template__card-preview {
-  width: 428px;
+  width: 350px;
   height: auto;
   display: block;
   transition: width 0.3s ease;

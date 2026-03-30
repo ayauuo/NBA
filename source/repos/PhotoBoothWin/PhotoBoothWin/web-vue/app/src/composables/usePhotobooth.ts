@@ -43,7 +43,7 @@ const TEMPLATES: Template[] = [
       { x: 641, y: 555, w: 530, h: 385 },
     ],
     // 換新框圖時設 displayW / displayH 為新圖的實際寬高（px），預覽與 video 會用這個尺寸
-    shootLayout: { layoutKey: 'bk01', captureW: 544, captureH: 471, displayW: 988, displayH: 724 },
+    shootLayout: { layoutKey: 'bk01', captureW: 530, captureH: 385, displayW: 988, displayH: 724 },
   },
   {
     id: 'bk02',
@@ -63,7 +63,7 @@ const TEMPLATES: Template[] = [
       { x: 641, y: 163, w: 530, h: 385 },
       { x: 641, y: 555, w: 530, h: 385 },
     ],
-    shootLayout: { layoutKey: 'bk02', captureW: 547, captureH: 405 },
+    shootLayout: { layoutKey: 'bk02', captureW: 530, captureH: 385 },
   },
   {
     id: 'bk03',
@@ -83,7 +83,7 @@ const TEMPLATES: Template[] = [
       { x: 641, y: 163, w: 530, h: 385 },
       { x: 641, y: 555, w: 530, h: 385 },
     ],
-    shootLayout: { layoutKey: 'bk03', captureW: 524, captureH: 502 },
+    shootLayout: { layoutKey: 'bk03', captureW: 530, captureH: 385 },
   },
   {
     id: 'bk04',
@@ -97,16 +97,16 @@ const TEMPLATES: Template[] = [
     width: 1205,/* 最後合成圖寬度 */
     height: 1795,/* 最後合成圖高度 */
     slots: [
-      { x: 104, y: 197, w: 529, h: 400 },
-      { x: 104, y: 562, w: 529, h: 400 },
-      { x: 104, y: 933, w: 529, h: 400 },
-      { x: 105, y: 1207, w: 529, h: 400 },
-      { x: 686, y: 197, w: 529, h: 400 },
-      { x: 686, y: 562, w: 529, h: 400 },
-      { x: 686, y: 933, w: 529, h: 400 },
-      { x: 686, y: 1297, w: 529, h: 400 },
+      { x: 104, y: 197, w: 420, h: 300 },
+      { x: 104, y: 562, w: 420, h: 300 },
+      { x: 104, y: 933, w: 420, h: 300 },
+      { x: 105, y: 1296,w: 420, h: 300 },
+      { x: 686, y: 197, w: 420, h: 300 },
+      { x: 686, y: 562, w: 420, h: 300 },
+      { x: 686, y: 933, w: 420, h: 300 },
+      { x: 686, y: 1296,w: 420, h: 300 },
     ],
-    shootLayout: { layoutKey: 'bk04', captureW: 529, captureH: 400 },
+    shootLayout: { layoutKey: 'bk04', captureW: 420, captureH: 300 },
   },
   /** 4x6 雙條（左右各 4 格，只拍 4 張，合成時左右各貼同一組） */
   {
@@ -121,14 +121,14 @@ const TEMPLATES: Template[] = [
     width: 1205,/* 最後合成圖寬度 */
     height: 1795,/* 最後合成圖高度 */
     slots: [
-      { x: 104, y: 197, w: 529, h: 400 },
-      { x: 104, y: 562, w: 529, h: 400 },
-      { x: 104, y: 933, w: 529, h: 400 },
-      { x: 105, y: 1207, w: 529, h: 400 },
-      { x: 686, y: 197, w: 529, h: 400 },
-      { x: 686, y: 562, w: 529, h: 400 },
-      { x: 686, y: 933, w: 529, h: 400 },
-      { x: 686, y: 1297, w: 529, h: 400 },
+      { x: 104, y: 197, w: 420, h: 300 },
+      { x: 104, y: 562, w: 420, h: 300 },
+      { x: 104, y: 933, w: 420, h: 300 },
+      { x: 105, y: 1296, w: 420, h: 300 },
+      { x: 686, y: 197, w: 420, h: 300 },
+      { x: 686, y: 562, w: 420, h: 300 },
+      { x: 686, y: 933, w: 420, h: 300 },
+      { x: 686, y: 1296, w: 420, h: 300 },
     ],
     shootLayout: { layoutKey: 'bk05', captureW: 420, captureH: 300 },
   },
@@ -144,14 +144,14 @@ const TEMPLATES: Template[] = [
     width: 1205,/* 最後合成圖寬度 */
     height: 1795,/* 最後合成圖高度 */
     slots: [
-      { x: 104, y: 197, w: 529, h: 400 },
-      { x: 104, y: 562, w: 529, h: 400 },
-      { x: 104, y: 933, w: 529, h: 400 },
-      { x: 105, y: 1207, w: 529, h: 400 },
-      { x: 686, y: 197, w: 529, h: 400 },
-      { x: 686, y: 562, w: 529, h: 400 },
-      { x: 686, y: 933, w: 529, h: 400 },
-      { x: 686, y: 1297, w: 529, h: 400 },
+      { x: 104, y: 197, w: 420, h: 300 },
+      { x: 104, y: 562, w: 420, h: 300 },
+      { x: 104, y: 933, w: 420, h: 300 },
+      { x: 105, y: 1296, w: 420, h: 300 },
+      { x: 686, y: 197, w: 420, h: 300 },
+      { x: 686, y: 562, w: 420, h: 300 },
+      { x: 686, y: 933, w: 420, h: 300 },
+      { x: 686, y: 1296,w: 420, h: 300 },
     ],
     shootLayout: { layoutKey: 'bk06', captureW: 420, captureH: 300 },
   },

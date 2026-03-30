@@ -5,12 +5,14 @@ defineOptions({ name: 'ScreenUploading' })
 <template>
   <div class="screen screen--uploading" role="region" aria-label="照片上傳中">
     <div class="uploading-content">
+      <!-- uploadGif.gif 暫停顯示
       <img
         class="uploading-gif"
         src="/assets/templates/uploadPage/uploadGif.gif"
         alt=""
         aria-hidden="true"
       />
+      -->
     </div>
   </div>
 </template>
@@ -39,6 +41,7 @@ defineOptions({ name: 'ScreenUploading' })
   gap: $spacing-lg;
 }
 
+/* uploadGif.gif 暫停顯示
 .uploading-gif {
   max-width: min(90vw, 480px);
   max-height: min(80vh, 480px);
@@ -47,4 +50,5 @@ defineOptions({ name: 'ScreenUploading' })
   object-fit: contain;
   display: block;
 }
+*/
 </style>
