@@ -40,7 +40,10 @@ export interface Template {
   width: number
   height: number
   slots: TemplateSlot[]
-  /** 拍照畫面專用參數，依版型不同可帶入不同佈局與樣式 */
+  /**
+   * 合成格數（slots.length）可大於實際拍到的張數：buildFinalOutput 會依序循環使用
+   * captureResults（例：2 張照、4 格 → 第 1、2 張再重複貼第 3、4 格）。
+   */
   shootLayout?: TemplateShootLayout
 }
 

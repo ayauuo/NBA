@@ -129,7 +129,8 @@ watch(selectedTemplate, (v) => {
 
 .screen-template__scroll {
   flex: 1;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 80px 0 10px;
   display: flex;
   flex-direction: column;
@@ -179,14 +180,15 @@ watch(selectedTemplate, (v) => {
 .screen-template__grid {
   position: absolute;
   top: 197px;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 28px;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  width: 100%;
-  transform: translateX(0);
+  padding: 0 24px;
+  width: max-content;
+  max-width: none;
 
   &.has-selection :deep(.screen-template__card:not(.is-selected)) {
     transform: scale(0.9);

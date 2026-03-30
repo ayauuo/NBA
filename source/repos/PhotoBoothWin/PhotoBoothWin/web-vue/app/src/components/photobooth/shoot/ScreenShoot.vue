@@ -1224,7 +1224,19 @@ watch(
         <div class="title-and-picture-column">
           <div class="title-align-wrap">
             <div class="title-align-inner">
-              <h1>{{ showFilterOptions ? (isStickerEnabled() ? '選擇濾鏡與貼圖' : '選擇濾鏡') : '請看上方鏡頭' }}</h1>
+              <h1 v-if="showFilterOptions && isStickerEnabled()">選擇濾鏡與貼圖</h1>
+              <img
+                v-else-if="showFilterOptions"
+                class="shoot-filter-title-img"
+                src="/assets/templates/ShootPage/choosetext.png"
+                alt="選擇濾鏡"
+              />
+              <img
+                v-else
+                class="shoot-read-title-img"
+                src="/assets/templates/ShootPage/Readtext.png"
+                alt="請看上方鏡頭"
+              />
             </div>
             <div v-if="showFilterOptions && isStickerEnabled()" class="title-align-spacer" />
           </div>
@@ -1562,6 +1574,8 @@ watch(
       gap: 24px;
       width: 100%;
       min-width: 0;
+      /* 與下方預覽框分開，避免 Readtext／choosetext 與預覽黏在一起 */
+      margin-bottom: 20vh;
     }
 
     .title-align-inner {
@@ -1582,6 +1596,16 @@ watch(
       padding: 0;
       margin: 0;
     }
+
+    .shoot-read-title-img,
+    .shoot-filter-title-img {
+      display: block;
+      max-height: 96px;
+      width: auto;
+      max-width: 100%;
+      margin: 0 auto;
+      object-fit: contain;
+    }
   }
 
   .picture-and-stickers {
@@ -1589,6 +1613,14 @@ watch(
     align-items: flex-start;
     gap: 24px;
     width: 100%;
+    overflow: visible; /* 預覽區 scale(1.5) 外溢仍可顯示 */
+    /* 與上方 Readtext／choosetext 同軸：預覽框在橫向置中（列寬常大於 picture-area 時避免靠左） */
+    justify-content: center;
+  }
+
+  /* 濾鏡＋貼圖：左預覽＋右貼圖欄，維持由左排，與標題列 spacer 對齊 */
+  .screen-shoot-content.is-filter-mode .picture-and-stickers:has(.sticker-panel) {
+    justify-content: flex-start;
   }
 
   /* 標題與預覽共用同一寬度，確保對齊預覽框中心 */
@@ -1598,6 +1630,7 @@ watch(
     align-items: flex-start;
     width: fit-content;
     position: relative;
+    overflow: visible;
   }
 
   .screen-shoot-content.is-filter-mode .right-panel {
@@ -1614,8 +1647,10 @@ watch(
     position: relative;
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible; /* scale 後外溢；原 hidden 會裁切 1.5 倍預覽 */
     flex-shrink: 0;
+    transform: scale(1.8);
+    transform-origin: center center;
 
     .shoot-camera-error {
       position: absolute;

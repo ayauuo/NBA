@@ -5,12 +5,14 @@ defineOptions({ name: 'ScreenProcessing' })
 <template>
   <div class="screen screen--processing" role="region" aria-label="列印中">
     <div class="processing-content">
+      <!-- printGif.gif 暫停顯示
       <img
         class="processing-gif"
         src="/assets/templates/printPage/printGif.gif"
         alt=""
         aria-hidden="true"
       />
+      -->
     </div>
   </div>
 </template>
@@ -39,6 +41,7 @@ defineOptions({ name: 'ScreenProcessing' })
   gap: $spacing-lg;
 }
 
+/* printGif.gif 暫停顯示
 .processing-gif {
   max-width: min(90vw, 480px);
   max-height: min(80vh, 480px);
@@ -47,4 +50,5 @@ defineOptions({ name: 'ScreenProcessing' })
   object-fit: contain;
   display: block;
 }
+*/
 </style>

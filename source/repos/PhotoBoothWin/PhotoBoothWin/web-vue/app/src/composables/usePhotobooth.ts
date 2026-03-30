@@ -2,6 +2,13 @@ import { ref, computed, shallowRef, nextTick } from 'vue'
 import QRCode from 'qrcode'
 import type { Template, ScreenName, FilterId, TemplateSlot } from '@/types/photobooth'
 import { callHost } from './useHost'
+/** 選版型頁預覽：用 ?url 讓 Vite 打包進輸出，避免僅依賴 public 複製時漏檔 */
+import chooseLayoutBk01 from '@/assets/templates/chooselayout/bk01.png?url'
+import chooseLayoutBk02 from '@/assets/templates/chooselayout/bk02.png?url'
+import chooseLayoutBk03 from '@/assets/templates/chooselayout/bk03.png?url'
+import chooseLayoutBk04 from '@/assets/templates/chooselayout/bk04.png?url'
+import chooseLayoutBk05 from '@/assets/templates/chooselayout/bk05.png?url'
+import chooseLayoutBk06 from '@/assets/templates/chooselayout/bk06.png?url'
 
 type StickerInstance = {
   id: string
@@ -19,78 +26,134 @@ type StickerInstance = {
 const TEMPLATES: Template[] = [
   {
     id: 'bk01',
-    preview: '/assets/templates/chooselayout/bk01.png',
-    shotCount: 4,
-    sizeKey: '4x6',
-    captureW: 544,
-    captureH: 471,
+    preview: chooseLayoutBk01,
+    shotCount: 2,
+    sizeKey: '4x6_2IN',
+    captureW: 530, /* 框圖寬度 */
+    captureH: 385, /* 框圖高度 */
     stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
-    frameAspectRatio: '544/471',
-    width: 1205,
-    height: 1795,
+    frameAspectRatio: '530/385',
+    width: 1205,  /* 最後合成圖寬度 */
+    height: 1795, /* 最後合成圖高度 */
+    /** 只拍兩張：對應原四格版型的「上排」左、右兩格 */
     slots: [
-      { x: 43, y: 244, w: 544, h: 471 },
-      { x: 42, y: 1225, w: 544, h: 471 },
-      { x: 625, y: 244, w: 544, h: 471 },
-      { x: 623, y: 1061, w: 544, h: 471 },
+      { x: 50, y: 163, w: 530, h: 385 },
+      { x: 50, y: 555, w: 530, h: 385 },
+      { x: 641, y: 163, w: 530, h: 385 },
+      { x: 641, y: 555, w: 530, h: 385 },
     ],
     // 換新框圖時設 displayW / displayH 為新圖的實際寬高（px），預覽與 video 會用這個尺寸
     shootLayout: { layoutKey: 'bk01', captureW: 544, captureH: 471, displayW: 988, displayH: 724 },
   },
   {
     id: 'bk02',
-    preview: '/assets/templates/chooselayout/bk02.png',
-    shotCount: 4,
-    sizeKey: '4x6',
-    captureW: 547,
-    captureH: 405,
+    preview: chooseLayoutBk02,
+    shotCount: 2,
+    sizeKey: '4x6_2IN',
+    captureW: 530, /* 框圖寬度 */
+    captureH: 385, /* 框圖高度 */
     stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
-    frameAspectRatio: '547/405',
-    width: 1205,
-    height: 1795,
+    frameAspectRatio: '530/385',
+    width: 1205,  /* 最後合成圖寬度 */
+    height: 1795, /* 最後合成圖高度 */
+    /** 只拍兩張：對應原四格版型的「上排」左、右兩格 */
     slots: [
-      { x: 39, y: 667, w: 547, h: 405 },
-      { x: 39, y: 1158, w: 547, h: 405 },
-      { x: 662, y: 667, w: 547, h: 405 },
-      { x: 662, y: 1158, w: 547, h: 405 },
+      { x: 50, y: 163, w: 530, h: 385 },
+      { x: 50, y: 555, w: 530, h: 385 },
+      { x: 641, y: 163, w: 530, h: 385 },
+      { x: 641, y: 555, w: 530, h: 385 },
     ],
     shootLayout: { layoutKey: 'bk02', captureW: 547, captureH: 405 },
   },
   {
     id: 'bk03',
-    preview: '/assets/templates/chooselayout/bk03.png',
+    preview: chooseLayoutBk03,
     shotCount: 2,
-    sizeKey: '4x6',
-    captureW: 524,
-    captureH: 502,
+    sizeKey: '4x6_2IN',
+    captureW: 530, /* 框圖寬度 */
+    captureH: 385, /* 框圖高度 */
     stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
-    frameAspectRatio: '524/502',
-    width: 1205,
-    height: 1795,
+    frameAspectRatio: '530/385',
+    width: 1205,  /* 最後合成圖寬度 */
+    height: 1795, /* 最後合成圖高度 */
+    /** 只拍兩張：對應原四格版型的「上排」左、右兩格 */
     slots: [
-      { x: 56, y: 1004, w: 524, h: 502 },
-      { x: 637, y: 590, w: 524, h: 502 },
+      { x: 50, y: 163, w: 530, h: 385 },
+      { x: 50, y: 555, w: 530, h: 385 },
+      { x: 641, y: 163, w: 530, h: 385 },
+      { x: 641, y: 555, w: 530, h: 385 },
     ],
     shootLayout: { layoutKey: 'bk03', captureW: 524, captureH: 502 },
   },
   {
     id: 'bk04',
-    preview: '/assets/templates/chooselayout/bk04.png',
+    preview: chooseLayoutBk04,
     shotCount: 4,
-    sizeKey: '4x6',
-    captureW: 529,
-    captureH: 400,
+    sizeKey: '4x6_2IN',
+    captureW: 420,/* 框圖寬度 */
+    captureH: 300,/* 框圖高度 */
     stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
-    frameAspectRatio: '529/400',
-    width: 1205,
-    height: 1795,
+    frameAspectRatio: '420/300',
+    width: 1205,/* 最後合成圖寬度 */
+    height: 1795,/* 最後合成圖高度 */
     slots: [
-      { x: 54, y: 761, w: 529, h: 400 },
-      { x: 632, y: 761, w: 529, h: 400 },
-      { x: 54, y: 1290, w: 529, h: 400 },
-      { x: 632, y: 1290, w: 529, h: 400 },
+      { x: 104, y: 197, w: 529, h: 400 },
+      { x: 104, y: 562, w: 529, h: 400 },
+      { x: 104, y: 933, w: 529, h: 400 },
+      { x: 105, y: 1207, w: 529, h: 400 },
+      { x: 686, y: 197, w: 529, h: 400 },
+      { x: 686, y: 562, w: 529, h: 400 },
+      { x: 686, y: 933, w: 529, h: 400 },
+      { x: 686, y: 1297, w: 529, h: 400 },
     ],
     shootLayout: { layoutKey: 'bk04', captureW: 529, captureH: 400 },
+  },
+  /** 4x6 雙條（左右各 4 格，只拍 4 張，合成時左右各貼同一組） */
+  {
+    id: 'bk05',
+    preview: chooseLayoutBk05,
+    shotCount: 4,
+    sizeKey: '4x6_2IN',
+    captureW: 420,/* 框圖寬度 */
+    captureH: 300,/* 框圖高度 */
+    stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
+    frameAspectRatio: '420/300',
+    width: 1205,/* 最後合成圖寬度 */
+    height: 1795,/* 最後合成圖高度 */
+    slots: [
+      { x: 104, y: 197, w: 529, h: 400 },
+      { x: 104, y: 562, w: 529, h: 400 },
+      { x: 104, y: 933, w: 529, h: 400 },
+      { x: 105, y: 1207, w: 529, h: 400 },
+      { x: 686, y: 197, w: 529, h: 400 },
+      { x: 686, y: 562, w: 529, h: 400 },
+      { x: 686, y: 933, w: 529, h: 400 },
+      { x: 686, y: 1297, w: 529, h: 400 },
+    ],
+    shootLayout: { layoutKey: 'bk05', captureW: 420, captureH: 300 },
+  },
+  {
+    id: 'bk06',
+    preview: chooseLayoutBk06,
+    shotCount: 4,
+    sizeKey: '4x6_2IN',
+    captureW: 420,/* 框圖寬度 */
+    captureH: 300,/* 框圖高度 */
+    stageSize: { maxWidth: '1000px', maxHeight: 'calc(100vh - 200px)' },
+    frameAspectRatio: '420/300',
+    width: 1205,/* 最後合成圖寬度 */
+    height: 1795,/* 最後合成圖高度 */
+    slots: [
+      { x: 104, y: 197, w: 529, h: 400 },
+      { x: 104, y: 562, w: 529, h: 400 },
+      { x: 104, y: 933, w: 529, h: 400 },
+      { x: 105, y: 1207, w: 529, h: 400 },
+      { x: 686, y: 197, w: 529, h: 400 },
+      { x: 686, y: 562, w: 529, h: 400 },
+      { x: 686, y: 933, w: 529, h: 400 },
+      { x: 686, y: 1297, w: 529, h: 400 },
+    ],
+    shootLayout: { layoutKey: 'bk06', captureW: 420, captureH: 300 },
   },
 ]
 
@@ -424,9 +487,20 @@ export function usePhotobooth() {
         })
       // 底層：每一格畫照片（合成座標來自 env 或 template.slots）
       const synthesisSlots = getSynthesisSlots(tpl)
+      let captureUrls = [...captureResults.value]
+      /** 實際拍到的張數；少於 slots 時會循環補滿（例：2 張→4 格 = 0,1,0,1） */
+      const captureCycleLen = captureUrls.length
+      const slotCount = synthesisSlots.length
+      if (captureCycleLen > 0 && slotCount > 0 && captureCycleLen < slotCount) {
+        const expanded: string[] = []
+        for (let i = 0; i < slotCount; i++) {
+          expanded.push(captureUrls[i % captureCycleLen]!)
+        }
+        captureUrls = expanded
+      }
       const filterCss = getFilterCssForCanvas(selectedFilter.value)
-      for (let i = 0; i < Math.min(captureResults.value.length, synthesisSlots.length); i++) {
-        const url = captureResults.value[i]
+      for (let i = 0; i < Math.min(captureUrls.length, synthesisSlots.length); i++) {
+        const url = captureUrls[i]
         const slot = synthesisSlots[i]
         if (url === undefined || url === '' || slot === undefined) continue
         const img = await loadImg(url)
@@ -505,7 +579,11 @@ export function usePhotobooth() {
       for (let i = 0; i < synthesisSlots.length; i++) {
         const slot = synthesisSlots[i]
         if (!slot) continue
-        const slotStickers = isStickerEnabled ? (stickersBySlot.value[i] ?? []) : []
+        const stickerSlot =
+          captureCycleLen > 0 ? i % captureCycleLen : i
+        const slotStickers = isStickerEnabled
+          ? (stickersBySlot.value[stickerSlot] ?? [])
+          : []
         for (const st of slotStickers) {
           try {
             const stImg = await loadImg(st.imageUrl)
