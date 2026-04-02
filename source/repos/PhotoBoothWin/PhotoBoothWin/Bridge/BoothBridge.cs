@@ -399,6 +399,51 @@ namespace PhotoBoothWin.Bridge
                             return Ok(req.id, new { });
                         }
 
+                    case "get_evf_drive_focus_state":
+                        {
+                            var cam = CameraServiceProvider.Current;
+                            return Ok(req.id, new { step = cam.EvfDriveFocusStep, maxNearSteps = cam.EvfDriveFocusMaxNearSteps });
+                        }
+
+                    case "set_evf_drive_focus_max_steps":
+                        {
+                            var max = 10;
+                            if (req.data.TryGetProperty("maxNearSteps", out var mx) && mx.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                max = Math.Max(0, Math.Min(500, mx.GetInt32()));
+                            CameraServiceProvider.Current.EvfDriveFocusMaxNearSteps = max;
+                            var cam = CameraServiceProvider.Current;
+                            return Ok(req.id, new { step = cam.EvfDriveFocusStep, maxNearSteps = cam.EvfDriveFocusMaxNearSteps });
+                        }
+
+                    case "calibrate_evf_drive_focus_far":
+                        {
+                            var far3 = 24;
+                            if (req.data.TryGetProperty("far3RepeatCount", out var f3) && f3.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                far3 = Math.Max(1, Math.Min(80, f3.GetInt32()));
+                            if (req.data.TryGetProperty("maxNearSteps", out var mx) && mx.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                CameraServiceProvider.Current.EvfDriveFocusMaxNearSteps = Math.Max(0, Math.Min(500, mx.GetInt32()));
+                            await CameraServiceProvider.Current.InitializeAsync().ConfigureAwait(false);
+                            await CameraServiceProvider.Current.CalibrateEvfFocusFarEndAsync(far3).ConfigureAwait(false);
+                            var cam = CameraServiceProvider.Current;
+                            return Ok(req.id, new { step = cam.EvfDriveFocusStep, maxNearSteps = cam.EvfDriveFocusMaxNearSteps, far3RepeatCount = far3 });
+                        }
+
+                    case "drive_evf_focus_near1":
+                        {
+                            await CameraServiceProvider.Current.InitializeAsync().ConfigureAwait(false);
+                            var ok = await CameraServiceProvider.Current.TryDriveEvfFocusNear1Async().ConfigureAwait(false);
+                            var cam = CameraServiceProvider.Current;
+                            return Ok(req.id, new { ok, step = cam.EvfDriveFocusStep, maxNearSteps = cam.EvfDriveFocusMaxNearSteps });
+                        }
+
+                    case "drive_evf_focus_far1":
+                        {
+                            await CameraServiceProvider.Current.InitializeAsync().ConfigureAwait(false);
+                            var ok = await CameraServiceProvider.Current.TryDriveEvfFocusFar1Async().ConfigureAwait(false);
+                            var cam = CameraServiceProvider.Current;
+                            return Ok(req.id, new { ok, step = cam.EvfDriveFocusStep, maxNearSteps = cam.EvfDriveFocusMaxNearSteps });
+                        }
+
                     case "take_one_shot_edsdk":
                         {
                             // 1. 在 UI 執行緒解析參數 (快速)

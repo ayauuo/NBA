@@ -1240,14 +1240,6 @@ watch(
             </div>
             <div v-if="showFilterOptions && isStickerEnabled()" class="title-align-spacer" />
           </div>
-          <!-- 濾鏡／貼圖頁 1 分鐘倒數，時間到自動進入下一步 -->
-          <div
-            v-show="showFilterOptions && tp.shootingDone.value && !isReshooting"
-            class="filter-countdown"
-            aria-label="剩餘時間"
-          >
-            {{ filterCountdownSeconds }}
-          </div>
           <div class="picture-and-stickers">
           <div
             ref="pictureAreaRef"
@@ -1374,7 +1366,17 @@ watch(
             :class="{ 'is-hidden': tp.reshootUsedSlots.value.has(tp.currentMainIndex.value) || showFilterOptions }"
             @click="onAgain"
           />
-          <button type="button" class="next-btn shoot-btn" @click="handleNextClick" />
+          <div class="shoot-next-wrap">
+            <button type="button" class="next-btn shoot-btn" @click="handleNextClick" />
+            <!-- 濾鏡／貼圖頁 1 分鐘倒數（在下一步右側，不佔 flex 寬度以免擠動按鈕） -->
+            <div
+              v-show="showFilterOptions && tp.shootingDone.value && !isReshooting"
+              class="filter-countdown"
+              aria-label="剩餘時間"
+            >
+              {{ filterCountdownSeconds }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1416,11 +1418,20 @@ watch(
     }
   }
 
-  /* 濾鏡／貼圖頁 1 分鐘倒數 */
+  /* 濾鏡／貼圖頁 1 分鐘倒數：緊貼「下一步」右側，wrapper 維持與單顆 next 按鈕同寬 */
+  .shoot-next-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 410px;
+    height: 100px;
+  }
+
   .filter-countdown {
     position: absolute;
-    top: 0.5rem;
-    right: 1rem;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0.75rem;
     z-index: 50;
     font-size: 48px;
     font-weight: bold;
@@ -1428,6 +1439,8 @@ watch(
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
     min-width: 2.5em;
     text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
   }
 
   .screen-shoot-content {
@@ -1896,6 +1909,7 @@ watch(
   .btns {
     width: 1000px;
     padding: 0px 30px;
+    overflow: visible; /* 倒數在下一步右側可能超出 1000px 寬度 */
 
     // width: 1000px;
     // position: absolute;

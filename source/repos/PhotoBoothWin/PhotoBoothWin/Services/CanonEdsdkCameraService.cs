@@ -34,6 +34,11 @@ namespace PhotoBoothWin.Services
         /// <summary>AF 前暫停 EVF 拉流，避免 DoEvfAf 時相機 Busy。</summary>
         private volatile bool _pauseEvfPull;
 
+        /// <summary>自 <see cref="CalibrateEvfFocusFarEndAsync"/> 後，Near1 成功累計步數（僅軟體計步，手轉對焦環會不同步）。</summary>
+        private int _evfDriveFocusStep;
+
+        private int _evfDriveFocusMaxNearSteps = 10;
+
         public event EventHandler<BitmapSource>? LiveViewFrameReady;
         public event EventHandler<string>? PhotoCaptured;
 
@@ -306,6 +311,89 @@ namespace PhotoBoothWin.Services
             lock (_sync)
             {
                 EnsureSuccess(EdsSendCommand(_camera, (uint)EdsCameraCommand.DoEvfAf, (int)EdsEvfAf.Off), "EdsSendCommand(DoEvfAf)");
+            }
+        }
+
+        public int EvfDriveFocusStep
+        {
+            get { lock (_sync) { return _evfDriveFocusStep; } }
+        }
+
+        public int EvfDriveFocusMaxNearSteps
+        {
+            get { lock (_sync) { return _evfDriveFocusMaxNearSteps; } }
+            set
+            {
+                var v = Math.Max(0, Math.Min(500, value));
+                lock (_sync) { _evfDriveFocusMaxNearSteps = v; }
+            }
+        }
+
+        public async Task<bool> TryDriveEvfFocusNear1Async()
+        {
+            await InitializeAsync().ConfigureAwait(false);
+            bool moved = false;
+            lock (_sync)
+            {
+                if (_evfDriveFocusStep >= _evfDriveFocusMaxNearSteps)
+                {
+                    System.Diagnostics.Debug.WriteLine("[DriveLens] Near1 略過：已達 maxNearSteps");
+                    return false;
+                }
+                var err = EdsSendCommand(_camera, (uint)EdsCameraCommand.DriveLensEvf, (int)EdsEvfDriveLens.Near1);
+                if (err != (uint)EdsError.OK)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DriveLens] Near1 failed: 0x{err:X}");
+                    return false;
+                }
+                _evfDriveFocusStep++;
+                moved = true;
+            }
+            if (moved)
+                await Task.Delay(80).ConfigureAwait(false);
+            return moved;
+        }
+
+        public async Task<bool> TryDriveEvfFocusFar1Async()
+        {
+            await InitializeAsync().ConfigureAwait(false);
+            bool moved = false;
+            lock (_sync)
+            {
+                if (_evfDriveFocusStep <= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("[DriveLens] Far1 略過：已在步數下限 0");
+                    return false;
+                }
+                var err = EdsSendCommand(_camera, (uint)EdsCameraCommand.DriveLensEvf, (int)EdsEvfDriveLens.Far1);
+                if (err != (uint)EdsError.OK)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DriveLens] Far1 failed: 0x{err:X}");
+                    return false;
+                }
+                _evfDriveFocusStep--;
+                moved = true;
+            }
+            if (moved)
+                await Task.Delay(80).ConfigureAwait(false);
+            return moved;
+        }
+
+        public async Task CalibrateEvfFocusFarEndAsync(int far3RepeatCount = 24)
+        {
+            await InitializeAsync().ConfigureAwait(false);
+            var n = Math.Max(1, Math.Min(80, far3RepeatCount));
+            for (var i = 0; i < n; i++)
+            {
+                lock (_sync)
+                {
+                    EdsSendCommand(_camera, (uint)EdsCameraCommand.DriveLensEvf, (int)EdsEvfDriveLens.Far3);
+                }
+                await Task.Delay(100).ConfigureAwait(false);
+            }
+            lock (_sync)
+            {
+                _evfDriveFocusStep = 0;
             }
         }
 
@@ -829,7 +917,17 @@ namespace PhotoBoothWin.Services
             TakePicture = 0x00000000,
             PressShutterButton = 0x00000004,
             DoEvfAf = 0x00000102,
+            /// <summary>Live View 下驅動鏡頭對焦（與 kEdsCameraCommand_DriveLensEvf 相同）。</summary>
+            DriveLensEvf = 0x00000103,
             SetRemoteShootingMode = 0x0000010f
+        }
+
+        /// <summary>EDSDK EdsEvfDriveLens（僅使用 Near1/Far1 計步；Far3 用於歸零）。</summary>
+        private enum EdsEvfDriveLens : int
+        {
+            Near1 = 0x00000001,
+            Far1 = 0x00008001,
+            Far3 = 0x00008003
         }
 
         private enum EdsCameraStatusCommand : uint

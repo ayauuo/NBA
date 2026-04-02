@@ -10,6 +10,12 @@ const isRefocusing = ref(false)
 const isCapturing = ref(false)
 const captureError = ref<string | null>(null)
 
+/** EVF DriveLens 軟體計步（Near1/Far1），與 C# CanonEdsdkCameraService 同步 */
+const driveStep = ref(0)
+const driveMaxNear = ref(10)
+const far3Repeat = ref(24)
+const isDriveBusy = ref(false)
+
 /** 已拍好的照片 URL（photoUrl 或 dataUrl），供後續編輯使用 */
 const capturedPhotos = ref<string[]>([])
 
@@ -26,6 +32,80 @@ function log(msg: string) {
 function hasWebView() {
   const win = typeof window !== 'undefined' ? window : null
   return !!(win && (win as unknown as { chrome?: { webview?: unknown } }).chrome?.webview)
+}
+
+async function refreshDriveState() {
+  if (!hasWebView()) return
+  try {
+    const res = (await callHost('get_evf_drive_focus_state', {})) as {
+      step?: number
+      maxNearSteps?: number
+    }
+    if (typeof res.step === 'number') driveStep.value = res.step
+    if (typeof res.maxNearSteps === 'number') driveMaxNear.value = res.maxNearSteps
+  } catch {
+    /* ignore */
+  }
+}
+
+async function onSetMaxNearSteps() {
+  if (!hasWebView()) return
+  isDriveBusy.value = true
+  try {
+    await callHost('set_evf_drive_focus_max_steps', { maxNearSteps: driveMaxNear.value })
+    await refreshDriveState()
+    log(`已設定 maxNearSteps=${driveMaxNear.value}`)
+  } catch (e) {
+    log(`set maxNearSteps 錯誤: ${e}`)
+  } finally {
+    isDriveBusy.value = false
+  }
+}
+
+async function onCalibrateDriveFar() {
+  if (!hasWebView()) return
+  isDriveBusy.value = true
+  log('歸零：連送 Far3…')
+  try {
+    const res = (await callHost('calibrate_evf_drive_focus_far', {
+      far3RepeatCount: far3Repeat.value,
+      maxNearSteps: driveMaxNear.value,
+    })) as { step?: number; far3RepeatCount?: number }
+    await refreshDriveState()
+    log(`歸零完成 step=${res.step} far3=${res.far3RepeatCount ?? far3Repeat.value}`)
+  } catch (e) {
+    log(`歸零錯誤: ${e}`)
+  } finally {
+    isDriveBusy.value = false
+  }
+}
+
+async function onDriveNear1() {
+  if (!hasWebView()) return
+  isDriveBusy.value = true
+  try {
+    const res = (await callHost('drive_evf_focus_near1', {})) as { ok?: boolean; step?: number }
+    await refreshDriveState()
+    log(`Near1 ok=${res.ok} step=${res.step}`)
+  } catch (e) {
+    log(`Near1 錯誤: ${e}`)
+  } finally {
+    isDriveBusy.value = false
+  }
+}
+
+async function onDriveFar1() {
+  if (!hasWebView()) return
+  isDriveBusy.value = true
+  try {
+    const res = (await callHost('drive_evf_focus_far1', {})) as { ok?: boolean; step?: number }
+    await refreshDriveState()
+    log(`Far1 ok=${res.ok} step=${res.step}`)
+  } catch (e) {
+    log(`Far1 錯誤: ${e}`)
+  } finally {
+    isDriveBusy.value = false
+  }
 }
 
 async function onRefocus() {
@@ -101,6 +181,7 @@ onMounted(async () => {
     await callHost('clear_captures', {}).catch((e) => log(`clear_captures err: ${e}`))
     log('start: start_liveview')
     await callHost('start_liveview', {}).catch((e) => log(`start_liveview err: ${e}`))
+    await refreshDriveState()
     log('start: 完成')
   } else {
     log('非 WebView 環境，跳過相機初始化')
@@ -158,6 +239,69 @@ onUnmounted(() => {
           </button>
         </div>
         <p v-if="captureError" class="error-msg">{{ captureError }}</p>
+      </section>
+
+      <!-- EVF 手動驅動對焦（DriveLensEvf + 軟體計步） -->
+      <section class="camera-test-page__drive" aria-label="EVF 對焦驅動">
+        <h2>手動驅動對焦（計步上限）</h2>
+        <p class="drive-hint">
+          需先開啟即時預覽。先「歸零（Far3）」再 Near1 微調；步數僅程式記錄，手轉對焦環會失步。
+        </p>
+        <div class="drive-row">
+          <span class="drive-label">步數 {{ driveStep }} / 上限 {{ driveMaxNear }}</span>
+        </div>
+        <div class="drive-row drive-row--inputs">
+          <label class="drive-field">
+            上限步數
+            <input v-model.number="driveMaxNear" type="number" min="0" max="500" class="drive-input" />
+          </label>
+          <label class="drive-field">
+            Far3 次數（歸零）
+            <input v-model.number="far3Repeat" type="number" min="1" max="80" class="drive-input" />
+          </label>
+          <button
+            type="button"
+            class="btn btn-drive btn-drive--secondary"
+            :disabled="isDriveBusy || isCapturing"
+            @click="onSetMaxNearSteps"
+          >
+            套用上限
+          </button>
+        </div>
+        <div class="action-buttons drive-actions">
+          <button
+            type="button"
+            class="btn btn-drive"
+            :disabled="isDriveBusy || isCapturing"
+            @click="onCalibrateDriveFar"
+          >
+            {{ isDriveBusy ? '處理中…' : '歸零（Far3×N）' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-drive"
+            :disabled="isDriveBusy || isCapturing"
+            @click="onDriveNear1"
+          >
+            近一步（Near1）
+          </button>
+          <button
+            type="button"
+            class="btn btn-drive"
+            :disabled="isDriveBusy || isCapturing"
+            @click="onDriveFar1"
+          >
+            遠一步（Far1）
+          </button>
+          <button
+            type="button"
+            class="btn btn-drive btn-drive--ghost"
+            :disabled="isDriveBusy"
+            @click="refreshDriveState"
+          >
+            重新讀取狀態
+          </button>
+        </div>
       </section>
 
       <!-- LOG 面板 -->
@@ -244,6 +388,7 @@ onUnmounted(() => {
 
 .camera-test-page__preview,
 .camera-test-page__actions,
+.camera-test-page__drive,
 .camera-test-page__log,
 .camera-test-page__photos {
   h2 {
@@ -312,6 +457,82 @@ onUnmounted(() => {
 
   &:not(:disabled):hover {
     background: #20e9b5;
+  }
+}
+
+.camera-test-page__drive {
+  padding: 16px;
+  background: #12122a;
+  border-radius: 8px;
+  border: 1px solid #2a2a44;
+}
+
+.drive-hint {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: #9aa;
+  line-height: 1.45;
+}
+
+.drive-row {
+  margin-bottom: 12px;
+}
+
+.drive-row--inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: flex-end;
+}
+
+.drive-label {
+  font-size: 1rem;
+  color: #b8c5c5;
+}
+
+.drive-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.drive-input {
+  width: 100px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #0f0f1a;
+  color: #eee;
+}
+
+.drive-actions {
+  margin-top: 8px;
+}
+
+.btn-drive {
+  background: #7b2cbf;
+  color: #fff;
+
+  &:not(:disabled):hover {
+    background: #9d4edd;
+  }
+}
+
+.btn-drive--secondary {
+  background: #495057;
+  &:not(:disabled):hover {
+    background: #6c757d;
+  }
+}
+
+.btn-drive--ghost {
+  background: transparent;
+  border: 1px solid #555;
+  color: #ccc;
+  &:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.06);
   }
 }
 
