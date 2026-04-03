@@ -1191,33 +1191,41 @@ watch(
         <div v-show="showFilterOptions" class="filter-list-wrap">
           <FilterOptions />
         </div>
-        <div class="thumb-wrapper">
-          <div
-            v-for="item in thumbList"
-            :key="item.id"
-            class="thumb-frame"
-            :class="{ 'is-selected': tp.shootingDone.value && tp.currentMainIndex.value === item.id }"
-            role="button"
-            tabindex="0"
-            @click="onThumbClick(item.id)"
-            @keydown.enter="onThumbClick(item.id)"
-          >
-            <div class="thumb-frame__wrap" :style="thumbWrapStyle">
-              <!-- 縮圖一律用 img（濾鏡模式僅中間大圖用 canvas，左側改回 img 以降低記憶體） -->
-              <img
-                :id="`shoot-page-${item.id}`"
-                class="shoot-page"
-                :class="{ 'shoot-page--live-view-mirror': (tp.isBurstShooting.value && item.id - 1 === currentShootingIndex && hostLiveViewDataUrl) || (isReshooting && tp.currentMainIndex.value === item.id && hostLiveViewDataUrl) }"
-                :alt="`縮圖 ${item.id}`"
-                :src="(tp.isBurstShooting.value && item.id - 1 === currentShootingIndex && hostLiveViewDataUrl) || (isReshooting && tp.currentMainIndex.value === item.id && hostLiveViewDataUrl) ? hostLiveViewDataUrl : (item.url || item.frameUrl)"
-              />
-              <div
-                class="thumb-frame__cover"
-                :style="thumbCoverStyle(item.frameUrl)"
-                aria-hidden="true"
-              />
+        <div class="thumb-column">
+          <div class="thumb-wrapper">
+            <div
+              v-for="item in thumbList"
+              :key="item.id"
+              class="thumb-frame"
+              :class="{ 'is-selected': tp.shootingDone.value && tp.currentMainIndex.value === item.id }"
+              role="button"
+              tabindex="0"
+              @click="onThumbClick(item.id)"
+              @keydown.enter="onThumbClick(item.id)"
+            >
+              <div class="thumb-frame__wrap" :style="thumbWrapStyle">
+                <!-- 縮圖一律用 img（濾鏡模式僅中間大圖用 canvas，左側改回 img 以降低記憶體） -->
+                <img
+                  :id="`shoot-page-${item.id}`"
+                  class="shoot-page"
+                  :class="{ 'shoot-page--live-view-mirror': (tp.isBurstShooting.value && item.id - 1 === currentShootingIndex && hostLiveViewDataUrl) || (isReshooting && tp.currentMainIndex.value === item.id && hostLiveViewDataUrl) }"
+                  :alt="`縮圖 ${item.id}`"
+                  :src="(tp.isBurstShooting.value && item.id - 1 === currentShootingIndex && hostLiveViewDataUrl) || (isReshooting && tp.currentMainIndex.value === item.id && hostLiveViewDataUrl) ? hostLiveViewDataUrl : (item.url || item.frameUrl)"
+                />
+                <div
+                  class="thumb-frame__cover"
+                  :style="thumbCoverStyle(item.frameUrl)"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
           </div>
+          <p
+            v-show="!showFilterOptions && tp.shootingDone.value"
+            class="thumb-reshoot-hint"
+          >
+            每張照片皆可重拍一次
+          </p>
         </div>
       </div>
       <div class="right-panel">
@@ -1501,6 +1509,37 @@ watch(
     // left: 20px;
     // top: 180px;
     // z-index: 10;
+  }
+
+  /* 左側縮圖欄：與濾鏡列表並排時維持單一縱欄（縮圖＋提示） */
+  .thumb-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .thumb-reshoot-hint {
+    margin: 0;
+    margin-top: 12px;
+    padding: 0 8px;
+    max-width: 280px;
+    text-align: center;
+    font-size: 30px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow:
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000,
+      0 -1px 0 #000,
+      0 1px 0 #000,
+      -1px 0 0 #000,
+      1px 0 0 #000,
+      0 2px 8px rgba(0, 0, 0, 0.55);
+    user-select: none;
   }
 
   .thumb-wrapper {
@@ -1888,6 +1927,8 @@ watch(
 
   .btns.shoot-btns {
     visibility: hidden;
+    /* 整排（重拍＋下一步）略往右，與中央預覽較對齊 */
+    margin-left: 48px;
 
     &.is-visible {
       visibility: visible;

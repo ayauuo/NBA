@@ -34,6 +34,9 @@ function onFilterClick(id: FilterId) {
       {{ opt.label }}
     </button>
     </div>
+    <p class="filter-options__hint">
+      再次點擊選項即可消除濾鏡
+    </p>
   </div>
 </template>
 
@@ -64,6 +67,28 @@ function onFilterClick(id: FilterId) {
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+.filter-options__hint {
+  margin: 16px 0 0;
+  padding: 0 4px;
+  font-size: 30px;
+  line-height: 1.45;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  /* 文字黑邊（描邊）＋輕微陰影 */
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 -1px 0 #000,
+    0 1px 0 #000,
+    -1px 0 0 #000,
+    1px 0 0 #000,
+    0 2px 8px rgba(0, 0, 0, 0.55);
+  flex-shrink: 0;
 }
 
 .filter-options__item {

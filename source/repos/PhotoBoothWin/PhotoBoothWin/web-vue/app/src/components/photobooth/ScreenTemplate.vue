@@ -174,6 +174,17 @@ watch(selectedTemplate, (v) => {
   text-align: center;
   line-height: 1.2;
   letter-spacing: 10px;
+  /* 大字級用 2px 黑邊，與其他頁面提示一致 */
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000,
+    0 -2px 0 #000,
+    0 2px 0 #000,
+    -2px 0 0 #000,
+    2px 0 0 #000,
+    0 4px 16px rgba(0, 0, 0, 0.45);
   z-index: 2;
   /* 不攔截點擊，下方橫向捲動區可正常操作 */
   pointer-events: none;
